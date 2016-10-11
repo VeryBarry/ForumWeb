@@ -25,10 +25,16 @@ public class Main {
         Spark.get(
                 "/",
                 (request, response) -> {
+                    String replyId = request.queryParams("replyId");
+                    int replyIdNum = -1;
+                    if (replyId != null){
+                        replyIdNum = Integer.valueOf(replyId);
+                    }
+
                     HashMap m = new HashMap();
                     ArrayList<Message> msgs = new ArrayList<>();
                     for (Message message : messages) {
-                        if (message.replyId == -1) {
+                        if (message.replyId == replyIdNum) {
                             msgs.add(message);
                         }
                     }
