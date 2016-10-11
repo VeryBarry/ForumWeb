@@ -44,9 +44,10 @@ public class Main {
                     }
                     m.put("messages", msgs);
                     m.put("name", name);
+                    m.put("replyId", replyIdNum);
                     return new ModelAndView(m, "home.html");
                 },
-        new MustacheTemplateEngine()
+                new MustacheTemplateEngine()
         );
         Spark.post(
                 "/login",
@@ -68,6 +69,19 @@ public class Main {
                     return null;
                 },
                 new MustacheTemplateEngine()
+        );
+        Spark.post(
+                "/create-message",
+                (request, response) -> {
+                    String text = request.queryParams("text");
+                    int replyId = Integer.valueOf(request.queryParams("replyId"));
+                    Session session = request.session();
+                    String name = session.attribute("userName");
+                    Message msg = new Message(messages.size(), replyId, name, text);
+                    messages.add(msg);
+                    response.redirect("/");
+                    return null;
+                }
         );
 
     }
