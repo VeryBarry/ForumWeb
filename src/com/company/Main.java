@@ -5,6 +5,7 @@ import spark.Session;
 import spark.Spark;
 import spark.template.mustache.MustacheTemplateEngine;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -79,10 +80,33 @@ public class Main {
                     String name = session.attribute("userName");
                     Message msg = new Message(messages.size(), replyId, name, text);
                     messages.add(msg);
-                    response.redirect("/");
+                    //refreshes the page you were on after create-message executes
+                    response.redirect(request.headers("Referer"));
                     return null;
                 }
         );
 
+    }
+    public static void createTables(Connection conn) throws SQLException {
+        Statement stmt = conn.createStatement();
+        stmt.execute("CREATE TABLE IF NOT EXISTS users(id IDENTITY, name VARCHAR, password VARCHAR)");
+        stmt.execute("CREATE TABLE IF NOT EXISTS messages(id IDENTITY, reply_id INT, text VARCHAR, user_id INT)");
+    }
+    public static void insertUser(Connection conn, String name, String password) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO users VALUE(NULL, ?, ?)");
+        stmt.setString(1, name);
+        stmt.setString(2, password);
+        stmt.execute();
+    }
+    public static User selectUser(Connection conn, String name) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM users WHERE name = ?");
+        stmt.setString(1, name);
+        ResultSet results = stmt.executeQuery();
+        if (results.next()) {
+            int id = results.getInt("id");
+            String password = results.getString("password");
+            return new User(id, name, password);
+        }
+        return null;
     }
 }
