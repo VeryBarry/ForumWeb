@@ -1,5 +1,8 @@
 {{#name}}
 Welcome, {{.}}<br>
+<form action="/logout" method="post">
+    <button type="submit"
+</form>
 <form action="/create-message" method="post">
     <input type="text" placeholder="Enter message" name="text"/><br>
     <input type="hidden" value="{{replyId}}" name="replyId"/>
